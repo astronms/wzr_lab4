@@ -51,7 +51,7 @@ MovableObject::MovableObject(Terrain *t)             // konstruktor
 
 	//iID = (unsigned int)(clock() % 1000);  // identyfikator obiektu
 	iID = (unsigned int)(rand() % 1000);  // identyfikator obiektu
-	fprintf(f, "Nowy obiekt: iID = %d\n", iID);
+	//fprintf(f, "Nowy obiekt: iID = %d\n", iID);
 	state.iID_owner = iID;           // identyfikator w³aœciciela obiektu
 	state.if_autonomous = 0;
 
@@ -65,7 +65,7 @@ MovableObject::MovableObject(Terrain *t)             // konstruktor
 	if_keep_steer_wheel = false;
 	wheel_turn_speed = 0;
 
-	F_max = 7000;
+	F_max = 9000;
 	alpha_max = PI*45.0 / 180;
 	mass_own = 800.0;     // masa w³asna obiektu [kg] (bez paliwa)
 	state.mass_total = mass_own + state.amount_of_fuel;  // masa ca³kowita
@@ -1512,14 +1512,14 @@ int Terrain::OpenMapFromFile(char filename[])
 	fread(&height_std, sizeof(float), 1, pl);
 	fread(&level_of_water_std, sizeof(float), 1, pl);
 
-	fprintf(f, "\nOdczyt danych o terrainie z pliku %s\n\n", filename);
-	fprintf(f, "  size sektora = %f\n", sector_size);
-	fprintf(f, "  czas odnowy przedmiotu = %f\n", time_of_item_renewing);
-	fprintf(f, "  if_toroidal_world = %d\n", if_toroidal_world);
-	fprintf(f, "  border_x = %f\n", border_x);
-	fprintf(f, "  border_z = %f\n", border_z);
-	fprintf(f, "  liczba sekt. = %d\n", _liczba_sekt);
-	fprintf(f, "  std poziom wody = %f\n", level_of_water_std);
+	//fprintf(f, "\nOdczyt danych o terrainie z pliku %s\n\n", filename);
+	//fprintf(f, "  size sektora = %f\n", sector_size);
+	//fprintf(f, "  czas odnowy przedmiotu = %f\n", time_of_item_renewing);
+	//fprintf(f, "  if_toroidal_world = %d\n", if_toroidal_world);
+	//fprintf(f, "  border_x = %f\n", border_x);
+	//fprintf(f, "  border_z = %f\n", border_z);
+	//fprintf(f, "  liczba sekt. = %d\n", _liczba_sekt);
+	//fprintf(f, "  std poziom wody = %f\n", level_of_water_std);
 
 	for (long i = 0; i < _liczba_sekt; i++)
 	{
@@ -1560,8 +1560,8 @@ int Terrain::OpenMapFromFile(char filename[])
 	}
 	long _liczba_przedm = 0;
 	fread(&_liczba_przedm, sizeof(long), 1, pl);
-	fprintf(f, "Znaleziono w pliku %s przedmioty w liczbie %d\n", filename, _liczba_przedm);
-	fclose(f);
+	//fprintf(f, "Znaleziono w pliku %s przedmioty w liczbie %d\n", filename, _liczba_przedm);
+	//fclose(f);
 	f = fopen("wzr_log.txt", "a");
 	if (p) delete p;
 	p = new Item[_liczba_przedm+10];
@@ -1570,7 +1570,7 @@ int Terrain::OpenMapFromFile(char filename[])
 	{
 		fread(&p[i], sizeof(Item), 1, pl);
 		//fprintf(f, "  przedm.%d, type = %d, value = %f\n", i,p[i].type,p[i].value);
-		fclose(f);
+		//fclose(f);
 		f = fopen("wzr_log.txt", "a");
 		p[i].index = i;
 		InsertItemIntoSectors(&p[i]);
@@ -1592,7 +1592,7 @@ int Terrain::OpenMapFromFile(char filename[])
 	for (long i = 0; i < liczba_par_edycji_fald; i++)
 		fread(&pf_rej[i], sizeof(FoldParams), 1, pl);
 
-	fprintf(f, "Koniec wczytywania danych o terrainie.\n");
+	//fprintf(f, "Koniec wczytywania danych o terrainie.\n");
 	fclose(pl);
 	return 1;
 }

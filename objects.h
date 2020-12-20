@@ -1,6 +1,7 @@
 #define _OBJECTS__H
 #include <stdio.h>
 #include "quaternion.h"
+#include <map>
 
 #define PI 3.1416
 struct Item;
@@ -39,6 +40,10 @@ public:
 	//float wheel_turn_angle;               // kat skretu kol w radianach (w lewo - dodatni)
 	float wheel_turn_speed;      // steering wheel speed [rad/s]
 	bool if_keep_steer_wheel;    // czy kierownica zablokowana (jeœli nie, to wraca do po³o¿enia standardowego)
+	int transactionTarget_iID;
+	bool ifTransactionAcepted = false;
+	long transactionMoney;
+	float transactionFuel;
 
 	// parametry sta³e:
 	float planting_skills,    // umiejêtnoœæ sadzenia drzew (1-pe³na, 0- brak)
@@ -233,6 +238,7 @@ public:
 	MovableObject* SearchForAgentWithFuelToSale(float amountOfFuel);
 	std::map<int, MovableObject*>* movableObjects;
 	SectorsHashTable* ts;
+	float fuelMarketCost;
 	long number_of_items;      // liczba przedmiotów na planszy
 	long number_of_items_max;  // size tablicy przedmiotów
 	

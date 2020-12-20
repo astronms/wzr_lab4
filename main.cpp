@@ -346,8 +346,8 @@ void VirtualWorldCycle()
 // ****    poza grafik¹ 
 void EndOfInteraction()
 {
-	fprintf(f, "Koniec interakcji\n");
-	fclose(f);
+	//fprintf(f, "Koniec interakcji\n");
+	//fclose(f);
 }
 
 // Funkcja wysylajaca ramke z przekazem, zwraca zrealizowan¹ wartoœæ przekazu
@@ -413,6 +413,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	//Okreslamy tu wlasciwosci okna, szczegoly wygladu oraz
 	//adres funkcji przetwarzajacej komunikaty
 	window_class.style = CS_HREDRAW | CS_VREDRAW;
+	terrain.movableObjects = &network_vehicles;
 	window_class.lpfnWndProc = WndProc; //adres funkcji realizującej przetwarzanie meldunków 
 	window_class.cbClsExtra = 0;
 	window_class.cbWndExtra = 0;
@@ -1079,8 +1080,8 @@ LRESULT CALLBACK WndProc(HWND main_window, UINT message_type, WPARAM wParam, LPA
 		if (lParam == 100)
 			MessageBox(main_window, "Jest zbyt późno na dołączenie do wirtualnego świata. Trzeba to zrobić zanim inni uczestnicy zmienią jego state.", "Zamknięcie programu", MB_OK);
 
-		fprintf(f, "state.vPos = Vector3(%f, %f , %f);\n", my_vehicle->state.vPos.x, my_vehicle->state.vPos.y + 10, my_vehicle->state.vPos.z);
-		fprintf(f, "state.qOrient = quaternion(%f,%f,%f,%f);\n", my_vehicle->state.qOrient.x, my_vehicle->state.qOrient.y, my_vehicle->state.qOrient.z, my_vehicle->state.qOrient.w);
+		//fprintf(f, "state.vPos = Vector3(%f, %f , %f);\n", my_vehicle->state.vPos.x, my_vehicle->state.vPos.y + 10, my_vehicle->state.vPos.z);
+		//fprintf(f, "state.qOrient = quaternion(%f,%f,%f,%f);\n", my_vehicle->state.qOrient.x, my_vehicle->state.qOrient.y, my_vehicle->state.qOrient.z, my_vehicle->state.qOrient.w);
 
 		EndOfInteraction();
 		EndOfGraphics();

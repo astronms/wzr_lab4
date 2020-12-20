@@ -125,57 +125,57 @@ void AutoPilot::AutoControl(MovableObject *ob)
 		}
 
 
-
+		
 		if (distance > 400) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
 		}
 		else {
 			if (distance > 200 && distance < 300) {
-				ob->F = ob->F_max * 3 / 5;
+				ob->F = ob->F_max * 4 / 5;
 				ob->breaking_degree = 0.15;
 			}
 			else if (distance > 100 && distance <= 200) {
-				ob->F = ob->F_max * 3 / 5;
+				ob->F = ob->F_max * 4 / 5;
 				ob->breaking_degree = 0.2;
 			}
 			else if (distance > 50 && distance <= 100) {
-				ob->F = ob->F_max * 3 / 7;
-				ob->breaking_degree = 0.5;
+				ob->F = ob->F_max * 4 / 7;
+				ob->breaking_degree = 0.3;
 			}
 			else if (distance < 50) {
-				ob->F = ob->F_max * 3 / 8;
-				ob->breaking_degree = 0.5;
+				ob->F = ob->F_max * 6 / 8;
+				ob->breaking_degree = 0.3;
 			}
 			else {
-				ob->F = ob->F_max * 3 / 5;
+				ob->F = ob->F_max * 4 / 5;
 				ob->breaking_degree = 0.2;
 			}
 		}
 
-
+		
 		auto speed = ob->state.vV.length();
 		if (speed < 1) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
 		}
-
+		
 		if (ob->terrain->LevelOfWater(ob->state.vPos.x, ob->state.vPos.z) > ob->state.vPos.y) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
 		}
 
-
+		
 		if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
 			transactionObject = ob->terrain->SearchForAgentWithFuelToSale(amountFuelToBuy);
 
 			if (transactionObject != NULL) {
 				//obj->state.amount_of_fuel += amountFuelToBuy;
 				//obj->state.money -= amountFuelToBuy * obj->terrain->fuelMarketCost;
-				//ob->transactionTarget_iID = transactionObject->iID;
-				//ob->transactionMoney = amountFuelToBuy * ob->terrain->fuelMarketCost;
-				//ob->transactionFuel = -amountFuelToBuy;
-				//ob->ifTransactionAcepted = true;
+				ob->transactionTarget_iID = transactionObject->iID;
+				ob->transactionMoney = amountFuelToBuy * ob->terrain->fuelMarketCost;
+				ob->transactionFuel = -amountFuelToBuy;
+				ob->ifTransactionAcepted = true;
 			}
 		}
 	}
