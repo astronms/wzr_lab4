@@ -4,44 +4,193 @@
 #include "agents.h"
 
 
+
 AutoPilot::AutoPilot()
 {
 
 }
 
-void AutoPilot::AutoControl(MovableObject *ob)
-{
-	// TUTAJ NALE¯Y UMIEŒCIÆ ALGORYTM AUTONOMICZNEGO STEROWANIA POJAZDEM
+Vector3 removeHeight(Vector3 vect) {
+	return Vector3(vect.x, 0, vect.z);
+}
 
-	Terrain *_terrain = ob->terrain;
+float sgn(float value) {
+	return (0.0F < value) - (value < 0.0F);
+}
 
-	Vector3 vect_local_forward = ob->state.qOrient.rotate_vector(Vector3(1, 0, 0));
-	Vector3 vect_local_right = ob->state.qOrient.rotate_vector(Vector3(0, 0, 1));
-
-	// parametry sterowania:
-	ob->breaking_degree = 0;             // si³a hamowania
-	ob->F = ob->F_max;                           // si³a napêdowa
-	ob->wheel_turn_speed = 0;            // prêdkoœæ skrêtu kierownicy (dodatnia - w lewo)
-	ob->if_keep_steer_wheel = 0;         // czy kierownica zablokowana (jeœli nie, to wraca do po³o¿enia standardowego)
-	ob->state.wheel_turn_angle = 0;      // k¹t skrêtu kierownicy - mo¿na ustaiwaæ go bezpoœrednio zak³adaj¹c, ¿e robot mo¿e krêciæ kierownic¹ dowolnie szybko,
-	                                     // jednaj gwa³towna zmiana po³o¿enia kierownicy (i tym samym kó³) mo¿e skutkowaæ poœlizgiem pojazdu
-
-	// .................................................................
-	// .................................................................
-	// .................................................................
-
-
-
-
-
-
-
-
-
-
+int getSign(Vector3 v1, Vector3 v2) {
+#ifdef ABS
+	auto value1 = abs(v1.z * v2.x);
+	auto value2 = abs(v2.z * v1.x);
+	if (value1 > value2) {
+		return -1;
+	}
+	else
+	{
+		return 1;
+	}
+#else
+	auto value1 = v1.z * v2.x;
+	auto value2 = v2.z * v1.x;
+	if (value1 > value2) {
+		return -1;
+	}
+	else
+	{
+		return 1;
+	}
+#endif // ABS
 
 
 }
+
+void AutoPilot::AutoControl(MovableObject *ob)
+{
+	Terrain* _terrain = ob->terrain;
+	float amountFuelToBuy = 5.0;
+	float pi = 3.1415;
+	Vector3 vect_local_forward = ob->state.qOrient.rotate_vector(Vector3(1, 0, 0));
+	Vector3 vect_local_up = ob->state.qOrient.rotate_vector(Vector3(0, 1, 0));
+	Vector3 vect_local_right = ob->state.qOrient.rotate_vector(Vector3(0, 0, 1));
+	MovableObject* transactionObject;
+	// TUTAJ NALE¯Y UMIEŒCIÆ ALGORYTM AUTONOMICZNEGO STEROWANIA POJAZDEM
+	// .................................................................
+	// .................................................................
+
+
+	//gdy dotarlismy do itemu
+	if (ob->selectedItemToForward != NULL) {
+		if ((ob->state.vPos - ob->selectedItemToForward->vPos).length() < 1 || !ob->selectedItemToForward->to_take)
+			ob->selectedItemToForward = NULL;
+	}
+
+	//szukanie najblizszego itemu
+	if (ob->selectedItemToForward == NULL)
+	{
+		// dodac decydowanie czego potrzebujemy
+
+		ob->lengthToClosedItem = MAX_RADIUS;
+		Item*** itemsTable = new Item**;
+		long itemsCount = 0;
+		int additionalRadius = 10;
+
+		while (itemsCount == 0)
+		{
+			itemsCount = ob->terrain->ItemsInRadius(itemsTable, ob->state.vPos, MAX_RADIUS + additionalRadius);
+			ob->lengthToClosedItem += 10;
+			additionalRadius += 10;
+		}
+
+
+
+		for (int i = 0; i < itemsCount; i++) {
+			if ((*itemsTable)[i]->value > 1000 || ((*itemsTable)[i]->type != ITEM_COIN
+				&& (*itemsTable)[i]->type != ITEM_BARREL) || !(*itemsTable)[i]->to_take)
+				continue;
+			if (ob->state.amount_of_fuel > ob->state.maxFuelAmount && (*itemsTable)[i]->type == ITEM_BARREL)
+				continue;
+			if (ob->state.amount_of_fuel < ob->state.minFuelAmount && (*itemsTable)[i]->type == ITEM_COIN)
+				continue;
+
+			Vector3 itemPos = removeHeight((*itemsTable)[i]->vPos);
+			Vector3 agentPos = removeHeight(ob->state.vPos);
+
+			int currentItemLength = (itemPos - agentPos).length();
+
+			if (currentItemLength < ob->lengthToClosedItem) {
+				ob->selectedItemToForward = (*itemsTable)[i];
+				ob->lengthToClosedItem = currentItemLength;
+			}
+		}
+		delete itemsTable;
+	}
+	else
+	{
+
+		double turn = vect_local_forward.znorm() ^ ((ob->selectedItemToForward->vPos - ob->state.vPos).znorm());
+		double value = acos(turn);
+		//double value2 = atan(vect_local_forward.znorm() ^ ((ob->selectedItemToForward->vPos - ob->state.vPos).znorm()));
+		double distance = (ob->selectedItemToForward->vPos - ob->state.vPos).length();
+
+		int direction = getSign(ob->state.vPos, ob->selectedItemToForward->vPos);
+
+		if (distance > 300) {
+			ob->state.wheel_turn_angle = direction * value / 5;
+		}
+		else if (distance > 50) {
+			ob->state.wheel_turn_angle = direction * value / 2;
+		}
+		else {
+			ob->state.wheel_turn_angle = direction * value * 1.1;
+		}
+
+
+
+		if (distance > 400) {
+			ob->F = ob->F_max;
+			ob->breaking_degree = 0.0;
+		}
+		else {
+			if (distance > 200 && distance < 300) {
+				ob->F = ob->F_max * 3 / 5;
+				ob->breaking_degree = 0.15;
+			}
+			else if (distance > 100 && distance <= 200) {
+				ob->F = ob->F_max * 3 / 5;
+				ob->breaking_degree = 0.2;
+			}
+			else if (distance > 50 && distance <= 100) {
+				ob->F = ob->F_max * 3 / 7;
+				ob->breaking_degree = 0.5;
+			}
+			else if (distance < 50) {
+				ob->F = ob->F_max * 3 / 8;
+				ob->breaking_degree = 0.5;
+			}
+			else {
+				ob->F = ob->F_max * 3 / 5;
+				ob->breaking_degree = 0.2;
+			}
+		}
+
+
+		auto speed = ob->state.vV.length();
+		if (speed < 1) {
+			ob->F = ob->F_max;
+			ob->breaking_degree = 0.0;
+		}
+
+		if (ob->terrain->LevelOfWater(ob->state.vPos.x, ob->state.vPos.z) > ob->state.vPos.y) {
+			ob->F = ob->F_max;
+			ob->breaking_degree = 0.0;
+		}
+
+
+		if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
+			transactionObject = ob->terrain->SearchForAgentWithFuelToSale(amountFuelToBuy);
+
+			if (transactionObject != NULL) {
+				//obj->state.amount_of_fuel += amountFuelToBuy;
+				//obj->state.money -= amountFuelToBuy * obj->terrain->fuelMarketCost;
+				//ob->transactionTarget_iID = transactionObject->iID;
+				//ob->transactionMoney = amountFuelToBuy * ob->terrain->fuelMarketCost;
+				//ob->transactionFuel = -amountFuelToBuy;
+				//ob->ifTransactionAcepted = true;
+			}
+		}
+	}
+	//// parametry sterowania:
+	//ob->breaking_degree = 0;             // si³a hamowania
+	//ob->F = 0;                           // si³a napêdowa
+	//ob->wheel_turn_speed = 0;            // prêdkoœæ skrêtu kierownicy (dodatnia - w lewo)
+	//ob->if_keep_steer_wheel = 0;         // czy kierownica zablokowana (jeœli nie, to wraca do po³o¿enia standardowego)
+	//ob->state.wheel_turn_angle = 0;      // k¹t skrêtu kierownicy - mo¿na ustaiwaæ go bezpoœrednio zak³adaj¹c, ¿e robot mo¿e krêciæ kierownic¹ dowolnie szybko,
+	//                                     // jednaj gwa³towna zmiana po³o¿enia kierownicy (i tym samym kó³) mo¿e skutkowaæ poœlizgiem pojazdu
+
+	//// .................................................................
+
+}
+
 
 void AutoPilot::ControlTest(MovableObject *_ob, float krok_czasowy, float czas_proby)
 {

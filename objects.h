@@ -3,6 +3,7 @@
 #include "quaternion.h"
 
 #define PI 3.1416
+struct Item;
 extern class Terrain;
 
 struct ObjectState
@@ -19,6 +20,9 @@ struct ObjectState
 	float amount_of_fuel;
 	int iID_owner;
 	int if_autonomous;
+
+	int minFuelAmount;
+	int maxFuelAmount;
 };
 
 
@@ -69,7 +73,9 @@ public:
 
 	float time_of_simulation;     // czas sumaryczny symulacji obiektu   
 	Terrain *terrain;             // wskaŸnik do terrainu, do którego przypisany jest obiekt
-
+	Item * selectedItemToForward;
+	int lengthToClosedItem;
+	
 public:
 	MovableObject(Terrain *t);          // konstruktor
 	~MovableObject();
@@ -225,7 +231,8 @@ public:
 
 	long number_of_items;      // liczba przedmiotów na planszy
 	long number_of_items_max;  // size tablicy przedmiotów
-
+	MovableObject* SearchForAgentWithFuelToSale(float amountOfFuel);
+	std::map<int, MovableObject*>* movableObjects;
 	SectorsHashTable *ts;
 
 	

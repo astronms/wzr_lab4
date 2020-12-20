@@ -1,6 +1,7 @@
 #ifndef _OBJECTS__H
 #include "objects.h"
 #endif
+#define MAX_RADIUS 200
 
 class AutoPilot
 {       

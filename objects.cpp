@@ -43,8 +43,11 @@ char *DRZ_nazwy[32] = { "topola", "swierk", "baobab", "fantazja" };
 
 MovableObject::MovableObject(Terrain *t)             // konstruktor                   
 {
-
+	lengthToClosedItem = 0;
+	selectedItemToForward = NULL;
 	terrain = t;
+	this->state.maxFuelAmount = 200;
+	this->state.minFuelAmount = 20;
 
 	//iID = (unsigned int)(clock() % 1000);  // identyfikator obiektu
 	iID = (unsigned int)(rand() % 1000);  // identyfikator obiektu
@@ -1619,6 +1622,17 @@ void Terrain::SectorBeginPosition(float *x, float *z, long w, long k) // na pods
 
 	(*x) = _x;
 	(*z) = _z;
+}
+
+MovableObject* Terrain::SearchForAgentWithFuelToSale(float amoutOfFuel) {
+
+	for (auto obj : *movableObjects)
+	{
+		//dopisac wyslanie senda transferu
+		if (obj.second->IfFuelCouldBeSold(amoutOfFuel));
+		return obj.second;
+	}
+	return NULL;
 }
 
 Terrain::~Terrain()
