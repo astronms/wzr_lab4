@@ -1,0 +1,16 @@
+
+Odczyt danych o terrainie z pliku duze_monety.map
+
+  size sektora = 480.000000
+  czas odnowy przedmiotu = 120.000000
+  if_toroidal_world = 0
+  border_x = -1.000000
+  border_z = -1.000000
+  liczba sekt. = 240
+  std poziom wody = 13.500000
+Znaleziono w pliku duze_monety.map przedmioty w liczbie 700
+Koniec wczytywania danych o terrainie.
+Nowy obiekt: iID = 665
+state.vPos = Vector3(-830.922668, 226.360199 , 660.967407);
+state.qOrient = quaternion(0.011043,0.996081,-0.064843,-0.059095);
+Koniec interakcji
