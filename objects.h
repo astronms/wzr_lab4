@@ -78,6 +78,7 @@ public:
 	
 public:
 	MovableObject(Terrain *t);          // konstruktor
+	bool IfFuelCouldBeSold(float amountOfFuel);
 	~MovableObject();
 	void ChangeState(ObjectState __state);          // zmiana stanu obiektu
 	ObjectState State();        // metoda zwracajaca state obiektu
@@ -229,11 +230,12 @@ public:
 	void DeleteItemFromSectors(Item *prz);
 public:
 
-	long number_of_items;      // liczba przedmiotów na planszy
-	long number_of_items_max;  // size tablicy przedmiotów
 	MovableObject* SearchForAgentWithFuelToSale(float amountOfFuel);
 	std::map<int, MovableObject*>* movableObjects;
-	SectorsHashTable *ts;
+	SectorsHashTable* ts;
+	long number_of_items;      // liczba przedmiotów na planszy
+	long number_of_items_max;  // size tablicy przedmiotów
+	
 
 	
 	// inne istotne w³aœciwoœci terrainu:

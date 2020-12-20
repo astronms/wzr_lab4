@@ -126,6 +126,12 @@ MovableObject::MovableObject(Terrain *t)             // konstruktor
 
 	if_selected = false;
 }
+bool MovableObject::IfFuelCouldBeSold(float amountOfFuel) {
+	if (this->state.amount_of_fuel > this->state.minFuelAmount + amountOfFuel)
+		return true;
+	else
+		return false;
+}
 
 MovableObject::~MovableObject()            // destruktor
 {
