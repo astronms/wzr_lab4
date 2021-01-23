@@ -69,7 +69,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 	{
 		// dodac decydowanie czego potrzebujemy
 
-		ob->lengthToClosedItem = MAX_RADIUS;
+		ob->lengthToClosedItem = MAX_RADIUS + 1000000;
 		Item*** itemsTable = new Item**;
 		long itemsCount = 0;
 		int additionalRadius = 10;
@@ -84,12 +84,14 @@ void AutoPilot::AutoControl(MovableObject *ob)
 
 
 		for (int i = 0; i < itemsCount; i++) {
-			if ((*itemsTable)[i]->value > 1000 || ((*itemsTable)[i]->type != ITEM_COIN
+			/*if ((*itemsTable)[i]->value > 1000 || ((*itemsTable)[i]->type != ITEM_COIN
 				&& (*itemsTable)[i]->type != ITEM_BARREL) || !(*itemsTable)[i]->to_take)
 				continue;
 			if (ob->state.amount_of_fuel > ob->state.maxFuelAmount && (*itemsTable)[i]->type == ITEM_BARREL)
 				continue;
 			if (ob->state.amount_of_fuel < ob->state.minFuelAmount && (*itemsTable)[i]->type == ITEM_COIN)
+				continue;*/
+			if ((*itemsTable)[i]->type == ITEM_BARREL || !(*itemsTable)[i]->to_take)
 				continue;
 
 			Vector3 itemPos = removeHeight((*itemsTable)[i]->vPos);
@@ -113,6 +115,8 @@ void AutoPilot::AutoControl(MovableObject *ob)
 		double distance = (ob->selectedItemToForward->vPos - ob->state.vPos).length();
 
 		int direction = getSign(ob->state.vPos, ob->selectedItemToForward->vPos);
+
+		int tmp_angle  = ob->state.wheel_turn_angle;
 
 		if (distance > 300) {
 			ob->state.wheel_turn_angle = direction * value / 5;
@@ -145,20 +149,29 @@ void AutoPilot::AutoControl(MovableObject *ob)
 			}
 			else if (distance < 50) {
 				ob->F = ob->F_max * 6 / 8;
-				ob->breaking_degree = 0.3;
+				ob->breaking_degree = 0.5;
 			}
 			else {
 				ob->F = ob->F_max * 4 / 5;
-				ob->breaking_degree = 0.2;
+				ob->breaking_degree = 0.7;
+			}
+			if (distance <= 2  && ob->selectedItemToForward != NULL)
+			{
+				if (ob->selectedItemToForward->type == ITEM_COIN && ob->selectedItemToForward->value > 1000)
+				{
+					ob->F = 0;
+					ob->breaking_degree = 0.9;
+					ob->state.wheel_turn_angle = tmp_angle;
+				}
 			}
 		}
 
 		
-		auto speed = ob->state.vV.length();
+		/*auto speed = ob->state.vV.length();
 		if (speed < 1) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
-		}
+		}*/
 		
 		if (ob->terrain->LevelOfWater(ob->state.vPos.x, ob->state.vPos.z) > ob->state.vPos.y) {
 			ob->F = ob->F_max;
@@ -166,7 +179,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 		}
 
 		
-		if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
+		/*if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
 			transactionObject = ob->terrain->SearchForAgentWithFuelToSale(amountFuelToBuy);
 
 			if (transactionObject != NULL) {
@@ -177,7 +190,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 				ob->transactionFuel = -amountFuelToBuy;
 				ob->ifTransactionAcepted = true;
 			}
-		}
+		}*/
 	}
 	//// parametry sterowania:
 	//ob->breaking_degree = 0;             // si³a hamowania
