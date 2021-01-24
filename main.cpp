@@ -107,7 +107,11 @@ DWORD WINAPI ReceiveThreadFunction(void *ptr)
 		size = pmt_net->reciv((char*)&frame, sizeof(Frame));   // oczekiwanie na nadejœcie ramki 
 		// Lock the Critical section
 		EnterCriticalSection(&m_cs);               // wejście na ścieżkę krytyczną - by inne wątki (np. główny) nie współdzielił 
-
+		if (my_vehicle->need_to_send_money)
+		{
+			TransferSending(my_vehicle->shoud_send_money_to, MONEY, my_vehicle->money_to_send);
+			my_vehicle->need_to_send_money = false;
+		}
 		switch (frame.frame_type)
 		{
 		case OBJECT_STATE:           // podstawowy typ ramki informuj¹cej o stanie obiektu              

@@ -49,6 +49,7 @@ MovableObject::MovableObject(Terrain *t)             // konstruktor
 	this->state.maxFuelAmount = 200;
 	this->state.minFuelAmount = 20;
 
+
 	//iID = (unsigned int)(clock() % 1000);  // identyfikator obiektu
 	iID = (unsigned int)(rand() % 1000);  // identyfikator obiektu
 	//fprintf(f, "Nowy obiekt: iID = %d\n", iID);
@@ -154,7 +155,7 @@ void MovableObject::Simulation(float dt)          // obliczenie nowego stanu na 
 
 	time_of_simulation += dt;          // sumaryczny czas wszystkich symulacji obiektu od jego powstania
 
-	float friction_ground = 0.7;            // wspó³czynnik tarcia obiektu o pod³o¿e 
+	float friction_ground = 6;            // wspó³czynnik tarcia obiektu o pod³o¿e 
 	float friction_rot = friction_ground;     // friction_ground obrotowe (w szczególnych przypadkach mo¿e byæ inne ni¿ liniowe)
 	float friction_rolling = 0.35;    // wspó³czynnik tarcia tocznego
 	float friction_of_water = 0.1;   // opór wody w N*s2/m4
@@ -692,17 +693,18 @@ void MovableObject::Simulation(float dt)          // obliczenie nowego stanu na 
 
 			long value = prz->value;
 			taking_value = -1;
-
+			bool helpmate = false;
+			int who_helped = -1;
 			if (prz->type == ITEM_COIN)
 			{
+
 				bool if_can_take = false;
 				// przy du¿ej wartoœci nie mogê samodzielnie podnieœæ pieni¹¿ka bez bratniej pomocy innego pojazdu
 				// odleg³oœæ bratniego pojazdu od pieni¹dza nie mo¿e byæ mniejsza od naszej odleg³oœci, gdy¿ wtedy
 				// to ten another pojazd zgarnie monetê:
 				if (value >= 1000)
 				{
-					bool helpmate = false;
-					int who_helped = -1;
+
 					for (long k = 0; k < number_of_objects_in_radius; k++)
 					{
 						MovableObject *another = object_tab_pointer[k];
@@ -730,7 +732,15 @@ void MovableObject::Simulation(float dt)          // obliczenie nowego stanu na 
 
 				if (if_can_take)
 				{
-					taking_value = (float)value*money_collection_skills;
+					money_collection_skills = 1;
+					if (helpmate == true && who_helped != -1)
+					{
+						taking_value = (float)(((float)value * money_collection_skills) / 2);
+						need_to_send_money = true;
+						shoud_send_money_to = who_helped;
+						money_to_send = taking_value;
+					}
+					taking_value = (float)value * money_collection_skills;
 					state.money += (long)taking_value;
 				}
 

@@ -1,7 +1,0 @@
-Nie dalo sie otworzyc pliku stozki_5.map do odczytu!
-Nie dalo sie otworzyc pliku ..\stozki_5.map do odczytu!
-Nie dalo sie otworzyc pliku ..\..\stozki_5.map do odczytu!
-Cannot open terrain map!Nowy obiekt: iID = 238
-state.vPos = Vector3(220.000000, 10.976772 , -50.000000);
-state.qOrient = quaternion(0.000000,-0.342021,0.000000,0.939692);
-Koniec interakcji

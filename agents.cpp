@@ -44,7 +44,7 @@ int getSign(Vector3 v1, Vector3 v2) {
 
 }
 
-void AutoPilot::AutoControl(MovableObject *ob)
+void AutoPilot::AutoControl(MovableObject* ob)
 {
 	Terrain* _terrain = ob->terrain;
 	float amountFuelToBuy = 5.0;
@@ -69,7 +69,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 	{
 		// dodac decydowanie czego potrzebujemy
 
-		ob->lengthToClosedItem = MAX_RADIUS + 1000000;
+		ob->lengthToClosedItem = MAX_RADIUS;
 		Item*** itemsTable = new Item**;
 		long itemsCount = 0;
 		int additionalRadius = 10;
@@ -84,15 +84,15 @@ void AutoPilot::AutoControl(MovableObject *ob)
 
 
 		for (int i = 0; i < itemsCount; i++) {
-			/*if ((*itemsTable)[i]->value > 1000 || ((*itemsTable)[i]->type != ITEM_COIN
+			if (((*itemsTable)[i]->type != ITEM_COIN
 				&& (*itemsTable)[i]->type != ITEM_BARREL) || !(*itemsTable)[i]->to_take)
 				continue;
-			if (ob->state.amount_of_fuel > ob->state.maxFuelAmount && (*itemsTable)[i]->type == ITEM_BARREL)
+			if (ob->state.amount_of_fuel > ob->state.minFuelAmount && (*itemsTable)[i]->type == ITEM_COIN)
 				continue;
-			if (ob->state.amount_of_fuel < ob->state.minFuelAmount && (*itemsTable)[i]->type == ITEM_COIN)
-				continue;*/
-			if ((*itemsTable)[i]->type == ITEM_BARREL || !(*itemsTable)[i]->to_take)
+			if (ob->state.amount_of_fuel < ob->state.maxFuelAmount && (*itemsTable)[i]->type == ITEM_BARREL)
 				continue;
+
+
 
 			Vector3 itemPos = removeHeight((*itemsTable)[i]->vPos);
 			Vector3 agentPos = removeHeight(ob->state.vPos);
@@ -116,8 +116,6 @@ void AutoPilot::AutoControl(MovableObject *ob)
 
 		int direction = getSign(ob->state.vPos, ob->selectedItemToForward->vPos);
 
-		int tmp_angle  = ob->state.wheel_turn_angle;
-
 		if (distance > 300) {
 			ob->state.wheel_turn_angle = direction * value / 5;
 		}
@@ -125,61 +123,41 @@ void AutoPilot::AutoControl(MovableObject *ob)
 			ob->state.wheel_turn_angle = direction * value / 2;
 		}
 		else {
-			ob->state.wheel_turn_angle = direction * value * 1.1;
+			ob->state.wheel_turn_angle = direction * turn;
 		}
-
-
 		
-		if (distance > 400) {
+
+
+		if (distance > 20) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
 		}
 		else {
-			if (distance > 200 && distance < 300) {
-				ob->F = ob->F_max * 4 / 5;
-				ob->breaking_degree = 0.15;
-			}
-			else if (distance > 100 && distance <= 200) {
-				ob->F = ob->F_max * 4 / 5;
-				ob->breaking_degree = 0.2;
-			}
-			else if (distance > 50 && distance <= 100) {
-				ob->F = ob->F_max * 4 / 7;
-				ob->breaking_degree = 0.3;
-			}
-			else if (distance < 50) {
-				ob->F = ob->F_max * 6 / 8;
+			if (distance > 0.1 && distance <= 20) {
+				ob->F = ob->F_max * 0.6;
 				ob->breaking_degree = 0.5;
 			}
-			else {
-				ob->F = ob->F_max * 4 / 5;
-				ob->breaking_degree = 0.7;
-			}
-			if (distance <= 2  && ob->selectedItemToForward != NULL)
+			else
 			{
-				if (ob->selectedItemToForward->type == ITEM_COIN && ob->selectedItemToForward->value > 1000)
-				{
-					ob->F = 0;
-					ob->breaking_degree = 0.9;
-					ob->state.wheel_turn_angle = tmp_angle;
-				}
+				ob->F = 0;
+				ob->breaking_degree = 10;
 			}
 		}
 
-		
-		/*auto speed = ob->state.vV.length();
+
+		auto speed = ob->state.vV.length();
 		if (speed < 1) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
-		}*/
-		
+		}
+
 		if (ob->terrain->LevelOfWater(ob->state.vPos.x, ob->state.vPos.z) > ob->state.vPos.y) {
 			ob->F = ob->F_max;
 			ob->breaking_degree = 0.0;
 		}
 
-		
-		/*if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
+
+		if (ob->state.amount_of_fuel <= ob->state.minFuelAmount / 2) {
 			transactionObject = ob->terrain->SearchForAgentWithFuelToSale(amountFuelToBuy);
 
 			if (transactionObject != NULL) {
@@ -190,7 +168,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 				ob->transactionFuel = -amountFuelToBuy;
 				ob->ifTransactionAcepted = true;
 			}
-		}*/
+		}
 	}
 	//// parametry sterowania:
 	//ob->breaking_degree = 0;             // si³a hamowania
@@ -205,7 +183,7 @@ void AutoPilot::AutoControl(MovableObject *ob)
 }
 
 
-void AutoPilot::ControlTest(MovableObject *_ob, float krok_czasowy, float czas_proby)
+void AutoPilot::ControlTest(MovableObject* _ob, float krok_czasowy, float czas_proby)
 {
 	bool koniec = false;
 	float _czas = 0;               // czas liczony od pocz¹tku testu
@@ -228,7 +206,7 @@ float Randn(float srednia, float wariancja, long liczba_iter)
 	float suma = 0;
 	for (long i = 0; i < liczba_iter; i++)
 		suma += (float)rand() / RAND_MAX;
-	return (suma - (float)liczba_iter / 2)*sqrt(12 * wariancja / liczba_iter) + srednia;
+	return (suma - (float)liczba_iter / 2) * sqrt(12 * wariancja / liczba_iter) + srednia;
 }
 
 void AutoPilot::ParametersSimAnnealing(long number_of_epochs, float krok_czasowy, float czas_proby)
@@ -243,7 +221,7 @@ void AutoPilot::ParametersSimAnnealing(long number_of_epochs, float krok_czasowy
 	long gotowka_pop = 0;
 
 	float delta_par[100];
-	FILE *f = fopen("wyzarz_log.txt", "w");
+	FILE* f = fopen("wyzarz_log.txt", "w");
 
 	fprintf(f, "Start optymalizacji %d parametrow z wykorzystaniem symulowanego wyzarzania\n", number_of_params);
 	for (long ep = 0; ep < number_of_epochs; ep++)
@@ -261,7 +239,7 @@ void AutoPilot::ParametersSimAnnealing(long number_of_epochs, float krok_czasowy
 		for (long i = 0; i < number_of_params; i++)
 			fprintf(f, "par[%d] = %3.10f;\n", i, par[i]);
 		Terrain t2;
-		MovableObject *Obiekt = new MovableObject(&t2);
+		MovableObject* Obiekt = new MovableObject(&t2);
 		Obiekt->planting_skills = 1.0;
 		Obiekt->money_collection_skills = 1.0;
 		Obiekt->fuel_collection_skills = 1.0;
@@ -272,7 +250,7 @@ void AutoPilot::ParametersSimAnnealing(long number_of_epochs, float krok_czasowy
 		long gotowka = Obiekt->state.money - gotowka_pocz;
 
 		float dE = gotowka - gotowka_pop;
-		float p_akc = 1.0 / (1 + exp(-dE / (c*T)));
+		float p_akc = 1.0 / (1 + exp(-dE / (c * T)));
 		fprintf(f, "epoka %d: T = %f, gotowka = %d, dE = %f, p_akc = %f\n", ep, T, gotowka, dE, p_akc);
 		//if (gotowka > 15000) break;
 		// akceptujemy lub odrzucamy

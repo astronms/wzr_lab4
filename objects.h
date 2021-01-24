@@ -44,6 +44,9 @@ public:
 	bool ifTransactionAcepted = false;
 	long transactionMoney;
 	float transactionFuel;
+	bool need_to_send_money = false;
+	int shoud_send_money_to = -1;
+	float money_to_send = 0;
 
 	// parametry sta³e:
 	float planting_skills,    // umiejêtnoœæ sadzenia drzew (1-pe³na, 0- brak)
